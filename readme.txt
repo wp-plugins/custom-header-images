@@ -30,7 +30,7 @@ Plugin URL: <a href="http://www.blackbam.at/blackbams-blog/2012/06/25/custom-hea
 1. Upload the Plugin to your wp-content/plugins/ folder
 2. Activate the Plugin
 3. Go to Settings -&gt; Header Images and insert the image URLs (get the URLs from the media library)
-4. Paste the following code into your theme: <code><?php if(function_exists('chi_display_header') { chi_display_header(); } ?></code>
+4. Paste the following code into your theme: <code><?php if(function_exists('chi_display_header')) { chi_display_header(); } ?></code>
 
 Where to edit categories:
 * Go to Settings ->Header images (general images)
