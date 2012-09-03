@@ -4,24 +4,24 @@ Plugin Name: Custom Header Images
 Plugin URI: http://www.blackbam.at/blog/
 Description: A very simple and lightweight Plugin for managing custom header images for pages, posts, archive-pages, and all other possible.
 Author: David Stöckl
-Version: 1.0.0
+Version: 1.0.1
 Author URI: http://www.blackbam.at/blog/
-*/
+ *
+ * Note: This Plugins is GPLv2 licensed. This Plugin is released without any warranty. 
+ * 
+@Upcoming Features:
+1. Exclude certain post_types / taxonomies from header image functionality
+2. Header Image Links
+3. Il8n
 
 /* 1. Version check */
 global $wp_version;
 
-$exit_msg='The Ultra Simple Shop Plugin requires WordPress version 3.0 or higher. <a href="http://codex.wordpress.org/Upgrading_Wordpress">Please update!</a>';
+$exit_msg='The Custom Header Images Plugin requires WordPress version 3.0 or higher. <a href="http://codex.wordpress.org/Upgrading_Wordpress">Please update!</a>';
 
 if(version_compare($wp_version,"3.0","<")) {
 	exit ($exit_msg);
 }
-
-// check if at least PHP 5.2.0
-if (!(strnatcmp(phpversion(),'5.2.0') >= 0)) {
-	exit('The Ultra Simple Shop Plugin requires at least PHP 5.2.0.');
-}
-
 
 /* 2. Install / Uninstall */
 register_activation_hook(__FILE__,"chi_activate");
@@ -68,21 +68,30 @@ function chi_backend_page() { ?>
 					$header_images['chi_display_nothing'] = 1;
 				}
 				
+				$header_images['chi_url_global_default'] = $_POST['chi_url_global_default'];
+				
 				$header_images['chi_url_front'] = $_POST['chi_url_front'];
 				$header_images['chi_url_home'] = $_POST['chi_url_home'];
 				$header_images['chi_url_404'] = $_POST['chi_url_404'];
-				$header_images['chi_url_search'] = $_POST['chi_url_404'];
-				$header_images['chi_url_archive_default'] = $_POST['chi_url_archive_default'];
+				$header_images['chi_url_search'] = $_POST['chi_url_search'];
+				
 				$header_images['chi_url_single_default'] = $_POST['chi_url_single_default'];
 				$header_images['chi_url_page_default'] = $_POST['chi_url_page_default'];
-				$header_images['chi_url_global_default'] = $_POST['chi_url_global_default'];
+				
+				$header_images['chi_url_archive_default'] = $_POST['chi_url_archive_default'];
+				$header_images['chi_url_date'] = $_POST['chi_url_date'];
+				$header_images['chi_url_author_default'] = $_POST['chi_url_author_default'];
+				$header_images['chi_url_category_default'] = $_POST['chi_url_category_default'];
+				$header_images['chi_url_tag_default'] = $_POST['chi_url_tag_default'];
+				$header_images['chi_url_tax_default'] = $_POST['chi_url_tax_default'];
+				
 				
 				$header_images = array_map('trim',$header_images);
 				
 				update_option('chi_data',$header_images);
 				?>
 					<div id="setting-error-settings_updated" class="updated settings-error"> 
-						<p><strong><?php _e('Settings saved successfully.'); ?></strong></p>
+						<p><strong><?php _e('Settings saved successfully.','customheaderimages'); ?></strong></p>
 					</div>
 			<?php
 			} 
@@ -94,7 +103,7 @@ function chi_backend_page() { ?>
 				<p>Please consider <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=DX9GDC5T9J9AQ">donating</a>. Thank you.</p>
 				<p><strong>Note:</strong> If you host your images on your site (recommended), than you upload these using the media library:</p>
 				<ol>
-					<li>Go to the <a href="<?php bloginfo('wpurl'); ?>/wp-admin/upload.php">media library</a> and upload your images</li>
+					<li>Go to the <a href="<?php bloginfo('wpurl'); ?>/wp-admin/upload.php">media library</a> and upload your images (or use an external absolute image URL)</li>
 					<li>Copy the file-URL(s) of your image(s) and copy it to the desired position in this page</li>
 					<li>Save the settings</li>
 				</ol>
@@ -125,7 +134,15 @@ function chi_backend_page() { ?>
 				<div>
 					<table class="form-table">
 						<tr valign="top">
-							<th scope="row">Home/Blog Image URL</th>
+							<th scope="row">Global Image Default URL</th>
+							<td><input type="text" size="100" name="chi_url_global_default" value="<?php echo $data['chi_url_global_default']; ?>" /></td>
+							<td class="description">The image displayed on all pages, which have no set default.</td>
+						</tr>
+						<tr>
+							<th colspan="3"><strong>Special Pages</strong></th>
+						</tr>
+						<tr valign="top">
+							<th scope="row">Home Image URL</th>
 							<td><input type="text" size="100" name="chi_url_home" value="<?php echo $data['chi_url_home']; ?>" /></td>
 							<td class="description">The image displayed on the article overview page.</td>
 						</tr>
@@ -144,10 +161,8 @@ function chi_backend_page() { ?>
 							<td><input type="text" size="100" name="chi_url_search" value="<?php echo $data['chi_url_search']; ?>" /></td>
 							<td class="description">The image displayed on search pages.</td>
 						</tr>
-						<tr valign="top">
-							<th scope="row">Archive Default Image URL</th>
-							<td><input type="text" size="100" name="chi_url_archive_default" value="<?php echo $data['chi_url_archive_default']; ?>" /></td>
-							<td class="description">The image displayed on archive pages by default.</td>
+						<tr>
+							<th colspan="3"><strong>Posts &amp; Pages</strong></th>
 						</tr>
 						<tr valign="top">
 							<th scope="row">Single Post Default Image URL</th>
@@ -159,10 +174,38 @@ function chi_backend_page() { ?>
 							<td><input type="text" size="100" name="chi_url_page_default" value="<?php echo $data['chi_url_page_default']; ?>" /></td>
 							<td class="description">The image displayed on pages by default.</td>
 						</tr>
+						<tr>
+							<th colspan="3"><strong>Archive Pages</strong></th>
+						</tr>
 						<tr valign="top">
-							<th scope="row">Global Image Default URL</th>
-							<td><input type="text" size="100" name="chi_url_global_default" value="<?php echo $data['chi_url_global_default']; ?>" /></td>
-							<td class="description">The image displayed on all pages, which have no set default.</td>
+							<th scope="row">Archive Default Image URL</th>
+							<td><input type="text" size="100" name="chi_url_archive_default" value="<?php echo $data['chi_url_archive_default']; ?>" /></td>
+							<td class="description">The image displayed on archive pages by default.</td>
+						</tr>
+						<tr valign="top">
+							<th scope="row">Date Image URL</th>
+							<td><input type="text" size="100" name="chi_url_date" value="<?php echo $data['chi_url_date']; ?>" /></td>
+							<td class="description">The image displayed on date archive pages.</td>
+						</tr>
+						<tr valign="top">
+							<th scope="row">Author Image Default URL</th>
+							<td><input type="text" size="100" name="chi_url_author_default" value="<?php echo $data['chi_url_author_default']; ?>" /></td>
+							<td class="description">The image displayed on author pages by default.</td>
+						</tr>
+						<tr valign="top">
+							<th scope="row">Category Image Default URL</th>
+							<td><input type="text" size="100" name="chi_url_category_default" value="<?php echo $data['chi_url_category_default']; ?>" /></td>
+							<td class="description">The image displayed on category pages by default.</td>
+						</tr>
+						<tr valign="top">
+							<th scope="row">Tag Image Default URL</th>
+							<td><input type="text" size="100" name="chi_url_tag_default" value="<?php echo $data['chi_url_tag_default']; ?>" /></td>
+							<td class="description">The image displayed on tag pages by default.</td>
+						</tr>
+						<tr valign="top">
+							<th scope="row">Taxonomy Image Default URL</th>
+							<td><input type="text" size="100" name="chi_url_tax_default" value="<?php echo $data['chi_url_tax_default']; ?>" /></td>
+							<td class="description">The image displayed on taxonomy pages by default.</td>
 						</tr>
 					</table>
 					<p></p>
@@ -179,8 +222,12 @@ add_action('save_post', 'save_chi_post');
 
 // füge Post/Page/Post-Type Meta-Boxen hinzu
 function chi_init(){
-    add_meta_box("chi_post_settings", __("Custom Header Image",'custom-header-images'), "chi_post_settings", "post", "normal", "high");
-	add_meta_box("chi_post_settings", __("Custom Header Image",'custom-header-images'), "chi_post_settings", "page", "normal", "high");
+	
+	$post_types = get_post_types(array('public'=>'true'));
+	
+	foreach($post_types as $pt) {
+		add_meta_box("chi_post_settings", __("Custom Header Image",'custom-header-images'), "chi_post_settings", $pt, "normal", "default");
+	}
 }
 
 function chi_post_settings(){
@@ -193,6 +240,12 @@ function chi_post_settings(){
 				<th><label for="chi_post_setting_1">Custom Header image URL</label></th>
 				<td>
 					<input type="text" size="50" name="chi_post_setting_1" value="<?php echo $custom["chi_post_setting_1"][0]; ?>" />
+				</td>
+			</tr>
+			<tr>
+				<th><label for="chi_post_setting_2">Display nothing?</label></th>
+				<td>
+					<input type="checkbox" size="50" name="chi_post_setting_2" value="1" <?php if($custom["chi_post_setting_2"][0]==1) {?>checked="checked"<?php } ?> />
 				</td>
 			</tr>
 		</table>
@@ -209,6 +262,7 @@ function save_chi_post(){
 	
 	//if($post->post_type == "post" || $post->post_type == "page") {
 		update_post_meta($post->ID, "chi_post_setting_1", trim($_POST["chi_post_setting_1"]));
+		update_post_meta($post->ID, "chi_post_setting_2", intval($_POST["chi_post_setting_2"]));
 	//}
 }
 
@@ -217,57 +271,86 @@ function save_chi_post(){
 /******** Category options ***********/
 ///////////// Category custom Thumbnail
 //add extra fields to category edit form hook
-add_action ( 'category_add_form_fields', 'extra_category_fields_add');
-add_action ( 'edit_category_form_fields', 'extra_category_fields_edit');
+add_action('init','chi_taxonomy_fields',101);
 
-//add extra fields to category edit form callback function
-function extra_category_fields_edit( $tag ) {    //check for existing featured ID
+function chi_taxonomy_fields() {
+	$taxes = get_taxonomies(array('public'=>'true'));
+	
+	foreach($taxes as $tax) {
+		add_action ( $tax.'_add_form_fields', 'extra_taxonomy_fields_add');
+		add_action ( $tax.'_edit_form_fields', 'extra_taxonomy_fields_edit');
+		add_action ( 'edited_'.$tax, 'save_extra_taxonomy_fields',10,2);
+		add_action ( 'create_'.$tax, 'save_extra_taxonomy_fields',10,2);
+	}
+}
+
+
+//add extra fields to taxonomy edit form callback function
+function extra_taxonomy_fields_edit( $tag ) {    //check for existing featured ID
     $t_id = $tag->term_id;
-    $cat_meta = get_option( "chi_term_setting_1_$t_id");
+	$tax = $tag->taxonomy;
+    $cat_meta = get_option( "chi_term_setting_1_$tax_$t_id");
 ?>
 <tr class="form-field">
-<th scope="row" valign="top"><label for="cat_Image_url"><?php _e('Category Image Url'); ?></label></th>
+<th scope="row" valign="top"><label for="cat_Image_url"><?php _e('Taxonomy Image Url'); ?></label></th>
 <td>
-<input type="text" name="chi_term_setting_1_[img]" id="chi_term_setting_1_[img]" size="40" value="<?php echo $cat_meta['img'] ? $cat_meta['img'] : ''; ?>"><br />
-            <span class="description"><?php _e('Die URL zum Kategorie-Thumbnail - bitte den relativen Pfad benutzen i.d.R. /wp-content/..pfad_zum_bild/bild.jpg'); ?></span>
+<input type="text" name="chi_term_setting_1_[img]" id="chi_term_setting_1_[img]" size="40" value="<?php echo $cat_meta['img'] ? $cat_meta['img'] : ''; ?>">
+            <p><span class="description"><?php _e('The Taxonomy Thumbnail URL - please use relative path like /wp-content/..path_to_image/image.jpg'); ?></span></p>
         </td>
+</tr>
+<tr class="form-field">
+		<th scope="row"><label><?php _e('Display no header image?'); ?></th>
+		<td>
+		<input style="width:20px;" type="checkbox" size="50" name="chi_term_setting_1_[dpn]" value="1" <?php if($cat_meta['dpn']==1) {?>checked="checked"<?php } ?> /></p>
+		<p><span class="description"><?php _e('If this is checked, no header image will be displayed.'); ?></span></p></td>
 </tr>
 <?php
 }
 
-// add extra fields to the category add function
-function extra_category_fields_add($tag) {
+// add extra fields to the taxonomy add function
+function extra_taxonomy_fields_add($tag) {
     $t_id = $tag->term_id;
-    $cat_meta = get_option( "chi_term_setting_1_$t_id");
+	$tax = $tag->taxonomy;
+    $cat_meta = get_option( "chi_term_setting_1_".$tax."_$t_id");
 	?>
 	<div class="form-field">
-	<label for="cat_Image_url"><?php _e('Category Image Url'); ?></label>
-	
-	<input type="text" name="chi_term_setting_1_[img]" id="chi_term_setting_1_[img]" size="40" value="<?php echo $cat_meta['img'] ? $cat_meta['img'] : ''; ?>"><br />
-	            <span class="description"><?php _e('Die URL zum Kategorie-Thumbnail - bitte den relativen Pfad benutzen i.d.R. /wp-content/..pfad_zum_bild/bild.jpg'); ?></span>
-	        
+		<label><?php _e('Taxonomy Image Url'); ?></label>
+		<input type="text" name="chi_term_setting_1_[img]" size="40" value="<?php echo $cat_meta['img'] ? $cat_meta['img'] : ''; ?>"><br />
+		<p><span class="description"><?php _e('The Taxonomy Thumbnail URL - please use relative path like /wp-content/..path_to_image/image.jpg'); ?></span></p>
 	</div>
+	
+	<div class="form-field">
+		<p><label><?php _e('Display no header image?'); ?></label>
+		<input style="width:20px;" type="checkbox" size="50" name="chi_term_setting_1_[dpn]" value="1" <?php if($cat_meta['dpn']==1) {?>checked="checked"<?php } ?> /></p>
+		<p><span class="description"><?php _e('If this is checked, no header image will be displayed.'); ?></span></p>
+	</div>
+	
 		<?php
 }
-
-// save extra category extra fields hook
-add_action ( 'edited_category', 'save_extra_category_fields');
-add_action ( 'create_category', 'save_extra_category_fields');
-
-   // save extra category extra fields callback function
-function save_extra_category_fields( $term_id ) {
+   // save taxonomy extra fields callback function
+function save_extra_taxonomy_fields( $term_id, $tt_id ) {
+	
+	// get the taxonomy of this term
+	global $wpdb;
+	$tax = $wpdb->get_var("SELECT taxonomy FROM $wpdb->term_taxonomy WHERE term_taxonomy_id=$tt_id");
 	
     if ( isset( $_POST['chi_term_setting_1_'] ) ) {
         $t_id = $term_id;
-        $cat_meta = get_option( "chi_term_setting_1_$t_id");
+        $cat_meta = get_option( "chi_term_setting_1_".$tax."_$t_id");
         $cat_keys = array_keys($_POST['chi_term_setting_1_']);
-            foreach ($cat_keys as $key){
-            if (isset($_POST['chi_term_setting_1_'][$key])){
+		
+        foreach ($cat_keys as $key){
+        	if (isset($_POST['chi_term_setting_1_'][$key])){
                 $cat_meta[$key] = $_POST['chi_term_setting_1_'][$key];
             }
         }
+		
+		if($_POST['chi_term_setting_1_']['dpn']!=1) {
+			$cat_meta['dpn'] = 0;
+		}
+
         //save the option array
-        update_option( "chi_term_setting_1_$t_id", $cat_meta );
+        update_option( "chi_term_setting_1_".$tax."_$t_id", $cat_meta );
     }
 }
 
@@ -286,10 +369,11 @@ function chi_css() {?>
 <?php }
 
 function chi_display_header($width=-1,$height=-1) {
-	
 	$urls = get_option('chi_data');
 	
 	$header_image_url = "";
+	$display_nothing = false;
+	$final = false;
 	
 	if($width==-1) {
 		$width = $urls['chi_width'];
@@ -298,7 +382,6 @@ function chi_display_header($width=-1,$height=-1) {
 	if($height==-1) {
 		$height = $urls['chi_height'];
 	}
-
 	
 	if(is_front_page()) {
 		$header_image_url = $urls['chi_url_front'];
@@ -309,19 +392,49 @@ function chi_display_header($width=-1,$height=-1) {
 	} else if(is_search()) {
 		$header_image_url = $urls['chi_url_search'];
 	} else if(is_archive()) {
-		$cid = get_query_var('cat');
-		$category_image_url = get_option( "chi_term_setting_1_$cid");
 		
-		if($category_image_url!="") {
-			$header_image_url = $category_image_url;
-		} else {
-			$header_image_url = $urls['chi_url_single_default'];
+		if(is_category()) {
+			$cat_image_settings = get_option('chi_term_setting_1_category_'.get_query_var('cat'));
+			if($cat_image_settings["dpn"]==1) {
+				$display_nothing = true;
+			} else {
+				$header_image_url = $cat_image_settings["img"];
+			}
+			if($header_image_url=="") {
+				$header_image_url = $urls["chi_url_category_default"];
+			}
+		} else if(is_date()) {
+			$header_image_url= $urls["chi_url_date"];
+		} else if(is_author()) {
+			$header_image_url = $urls["chi_url_author_default"];
+		} else if(is_tag()) {
+			$header_image_url = $urls["chi_url_tag_default"];
+		} else if(is_tax()) {
+			$taxonomy = get_query_var('taxonomy');
+			$term = get_query_var($taxonomy);
+			$term_info = get_term_by('slug',$term,$taxonomy);
+			
+			$cat_image_settings = get_option('chi_term_setting_1_'.get_query_var('taxonomy').'_'.$term_info->term_id);
+			
+			if($cat_image_settings["dpn"]==1) {
+				$display_nothing = true;
+			} else {
+				$header_image_url = $cat_image_settings["img"];
+			}
+			if($header_image_url=="") {
+				$header_image_url = $urls["chi_url_tax_default"];
+			}
 		}
-		
-		$header_image_url = $urls['chi_url_archive_default'];
+		if($header_image_url=="") {
+			$header_image_url = $urls['chi_url_archive_default'];
+		}
 	} else if(is_single()) {
 		global $post;
 		$single_image_url=get_post_meta($post->ID,"chi_post_setting_1",true);
+		
+		if(get_post_meta($post->ID,"chi_post_setting_2",true)==1) {
+			$display_nothing = true;
+		}
 		
 		if($single_image_url!="") {
 			$header_image_url = $single_image_url;
@@ -331,6 +444,10 @@ function chi_display_header($width=-1,$height=-1) {
 	} else if(is_page()) {
 		global $post;
 		$single_image_url=get_post_meta($post->ID,"chi_post_setting_1",true);
+		
+		if(get_post_meta($post->ID,"chi_post_setting_2",true)==1) {
+			$display_nothing = true;
+		}
 		
 		if($single_image_url!="") {
 			$header_image_url = $single_image_url;
@@ -343,10 +460,13 @@ function chi_display_header($width=-1,$height=-1) {
 		$header_image_url=$urls['chi_url_global_default'];
 	}
 	
+	if($display_nothing===true) {
+		$header_image_url="";
+	}
+	
 	if($header_image_url!="") { ?>
 		<div class="chi_display_header" style="height:<?php echo $height;?>px; width:<?php echo $width;?>px; background-image:url('<?php echo $header_image_url; ?>');"></div>
 	<?php
 		}
 	}
-
 ?>

@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: header, images, simple
 Requires at least: 3.0
 Tested up to: 3.4
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -21,7 +21,10 @@ Features:
 * Each possible state is covered, by using all elements of the <a href="http://upload.wikimedia.org/wikipedia/commons/3/3d/Wordpress_Template_Hierarchy.png">WordPress template hierarchy</a>
 * The Media Library is used for image management, images are saved by URL copy/paste (so external images can be used, too)
 * Requires no extra tables
+* NEW: Support for Custom Post Types (Single Custom Post Images) and Custom Taxonomies (Taxonomy Page Images)
 * Clean install/uninstall
+
+Please report any bugs you may encounter.
 
 Plugin URL: <a href="http://www.blackbam.at/blackbams-blog/2012/06/25/custom-header-images-plugin-for-wordpress">http://www.blackbam.at/blackbams-blog/2012/06/25/custom-header-images-plugin-for-wordpress</a>
 
@@ -35,15 +38,23 @@ Plugin URL: <a href="http://www.blackbam.at/blackbams-blog/2012/06/25/custom-hea
 Where to set the image data:
 
 * Go to Settings -> Header Images for general settings
-* Meta Boxes at the bottom of post / page edit screen
-* Category add/edit screen
+* Meta Boxes at the bottom of post / page / custom post type edit screen
+* Category/Taxonomy add/edit screen
+
+Note: This Plugin uses conditional tags. You can only use conditional query tags after the posts_selection action hook in WordPress (the wp action hook is the first one through which you can use these conditionals). For themes, this means the conditional tag will never work properly if you are using it in the body of functions.php, i.e. outside of a function (http://codex.wordpress.org/Conditional_Tags).
 
 == Frequently Asked Questions ==
 
-Q: Is there support for custom post types and custom taxonomies?
-A: This feature is currently under development, and will probably be available soon.
+Q: The Plugin is not displaying the header images correctly. What is wrong?
+1. The function code must be pasted into one of your template files, the best place in most cases of use is the bottom of header.php
+2. This Plugin uses conditional tags. Please make sure that your wp_query object has been loaded correctly, before the code is executed.
 
 == Changelog ==
+
+= 1.0.1 =
+* Added full support for Custom Post Types and Custom Taxonomies
+* Various improvements in routing, fixed category image bug.
+* Fixed some language issues.
 
 = 1.0.0 =
 * Initial release.
