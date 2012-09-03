@@ -4,7 +4,7 @@ Plugin Name: Custom Header Images
 Plugin URI: http://www.blackbam.at/blog/
 Description: A very simple and lightweight Plugin for managing custom header images for pages, posts, archive-pages, and all other possible.
 Author: David Stöckl
-Version: 1.0.1
+Version: 1.0.2
 Author URI: http://www.blackbam.at/blog/
  *
  * Note: This Plugins is GPLv2 licensed. This Plugin is released without any warranty. 
@@ -289,7 +289,7 @@ function chi_taxonomy_fields() {
 function extra_taxonomy_fields_edit( $tag ) {    //check for existing featured ID
     $t_id = $tag->term_id;
 	$tax = $tag->taxonomy;
-    $cat_meta = get_option( "chi_term_setting_1_$tax_$t_id");
+    $cat_meta = get_option( "chi_term_setting_1_".$tax."_$t_id");
 ?>
 <tr class="form-field">
 <th scope="row" valign="top"><label for="cat_Image_url"><?php _e('Taxonomy Image Url'); ?></label></th>
@@ -348,7 +348,7 @@ function save_extra_taxonomy_fields( $term_id, $tt_id ) {
 		if($_POST['chi_term_setting_1_']['dpn']!=1) {
 			$cat_meta['dpn'] = 0;
 		}
-
+		
         //save the option array
         update_option( "chi_term_setting_1_".$tax."_$t_id", $cat_meta );
     }
@@ -402,6 +402,17 @@ function chi_display_header($width=-1,$height=-1) {
 			}
 			if($header_image_url=="") {
 				$header_image_url = $urls["chi_url_category_default"];
+			}
+			
+		} else if(is_tag()) {
+			$cat_image_settings = get_option('chi_term_setting_1_post_tag_'.get_query_var('tag_id'));
+			if($cat_image_settings["dpn"]==1) {
+				$display_nothing = true;
+			} else {
+				$header_image_url = $cat_image_settings["img"];
+			}
+			if($header_image_url=="") {
+				$header_image_url = $urls["chi_url_tag_default"];
 			}
 		} else if(is_date()) {
 			$header_image_url= $urls["chi_url_date"];

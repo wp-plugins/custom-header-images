@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: header, images, simple
 Requires at least: 3.0
 Tested up to: 3.4
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -45,11 +45,14 @@ Note: This Plugin uses conditional tags. You can only use conditional query tags
 
 == Frequently Asked Questions ==
 
-Q: The Plugin is not displaying the header images correctly. What is wrong?
-1. The function code must be pasted into one of your template files, the best place in most cases of use is the bottom of header.php
-2. This Plugin uses conditional tags. Please make sure that your wp_query object has been loaded correctly, before the code is executed.
+* Q: The Plugin is not displaying the header images correctly. What is wrong?
+* 1. The function code must be pasted into one of your template files, the best place in most cases of use is the bottom of header.php
+* 2. This Plugin uses conditional tags. Please make sure that your wp_query object has been loaded correctly, before the code is executed.
 
 == Changelog ==
+
+= 1.0.2 =
+* Fixed Taxonomy editing bug
 
 = 1.0.1 =
 * Added full support for Custom Post Types and Custom Taxonomies
