@@ -13,6 +13,7 @@ Author URI: http://www.blackbam.at/blog/
 1. Exclude certain post_types / taxonomies from header image functionality
 2. Header Image Links
 3. Il8n
+4. Custom output
 
 /* 1. Version check */
 global $wp_version;
