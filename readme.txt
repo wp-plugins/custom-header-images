@@ -3,8 +3,8 @@ Contributors: blackbam
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=DX9GDC5T9J9AQ
 Tags: header, images, simple
 Requires at least: 3.0
-Tested up to: 3.4
-Stable tag: 1.0.2
+Tested up to: 3.5
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -21,7 +21,12 @@ Features:
 * Each possible state is covered, by using all elements of the <a href="http://upload.wikimedia.org/wikipedia/commons/3/3d/Wordpress_Template_Hierarchy.png">WordPress template hierarchy</a>
 * The Media Library is used for image management, images are saved by URL copy/paste (so external images can be used, too)
 * Requires no extra tables
-* NEW: Support for Custom Post Types (Single Custom Post Images) and Custom Taxonomies (Taxonomy Page Images)
+* Support for Custom Post Types (Single Custom Post Images) and Custom Taxonomies (Taxonomy Page Images)
+* NEW (1.1.0): Linked Header Images (e.g. category page, larger image version, whatever you want ...)
+* NEW (1.1.0): Display Category Image by default
+* NEW (1.1.0): Full output customization
+* NEW (1.1.0): Exclude specified Taxonomies / Post Types from Header Image functionality
+* NEW (1.1.0): Internationalization (incl. English / German translation)
 * Clean install/uninstall
 
 Please report any bugs you may encounter.
@@ -47,9 +52,21 @@ Note: This Plugin uses conditional tags. You can only use conditional query tags
 
 * Q: The Plugin is not displaying the header images correctly. What is wrong?
 * 1. The function code must be pasted into one of your template files, the best place in most cases of use is the bottom of header.php
-* 2. This Plugin uses conditional tags. Please make sure that your wp_query object has been loaded correctly, before the code is executed.
+* 2. This Plugin uses conditional tags. Please make sure that your WP_Query object has been loaded correctly, before the code is executed.
+
+== Screenshots ==
+
+1. /assets/screenshot-1.png
+2. /assets/screenshot-2.png
 
 == Changelog ==
+
+= 1.1.0 =
+* Display Category Images by Default
+* Linked Header Images
+* Full Output customization
+* Exclude specified Post Types / Taxonomies from Header Image functionality
+* Internationalization
 
 = 1.0.2 =
 * Fixed Taxonomy editing bug
