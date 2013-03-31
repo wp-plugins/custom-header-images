@@ -689,8 +689,10 @@ function chi_display_header($width=-1,$height=-1) {
 				$categories = get_the_category($post->ID);
 				if(!empty($categories)) {
 					$first_cat_id = $categories[0]->term_id;
-					$category_image_url = get_option('chi_term_setting_1_category_'.$first_cat_id)['img'];
-					$category_image_link = get_option('chi_term_setting_1_category_'.$first_cat_id)['link'];
+					$category_image_url_op = get_option('chi_term_setting_1_category_'.$first_cat_id);
+					$category_image_url = $category_image_url_op['img'];
+					$category_image_link_op = get_option('chi_term_setting_1_category_'.$first_cat_id);
+					$category_image_link = $category_image_link_op['link']
 				}
 			}
 			
