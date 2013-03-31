@@ -4,7 +4,7 @@ Plugin Name: Custom Header Images
 Plugin URI: http://www.blackbam.at/blog/
 Description: A very simple and lightweight Plugin for managing custom header images for pages, posts, archive-pages, and all other possible.
 Author: David Stöckl
-Version: 1.1.0
+Version: 1.1.1
 Author URI: http://www.blackbam.at/blog/
  *
  * Note: This Plugins is GPLv2 licensed. This Plugin is released without any warranty. 
