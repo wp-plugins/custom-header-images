@@ -692,7 +692,7 @@ function chi_display_header($width=-1,$height=-1) {
 					$category_image_url_op = get_option('chi_term_setting_1_category_'.$first_cat_id);
 					$category_image_url = $category_image_url_op['img'];
 					$category_image_link_op = get_option('chi_term_setting_1_category_'.$first_cat_id);
-					$category_image_link = $category_image_link_op['link']
+					$category_image_link = $category_image_link_op['link'];
 				}
 			}
 			
