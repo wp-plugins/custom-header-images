@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: header, images, simple
 Requires at least: 3.0
 Tested up to: 3.5
-Stable tag: 1.1.1
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -27,6 +27,9 @@ Features:
 * NEW (1.1.0): Full output customization
 * NEW (1.1.0): Exclude specified Taxonomies / Post Types from Header Image functionality
 * NEW (1.1.0): Internationalization (incl. English / German translation)
+* NEW (1.2.0): Added API to retrieve plain URL/Link and output
+* NEW (1.2.0): Added possibility to use relative URLs.
+* NEW (1.2.0): Added Custom Header Images for author pages.
 * Clean install/uninstall
 
 Please report any bugs you may encounter.
@@ -60,6 +63,12 @@ Note: This Plugin uses conditional tags. You can only use conditional query tags
 2. /assets/screenshot-2.png
 
 == Changelog ==
+
+= 1.2.0 =
+* Added API to retrieve plain URL/Link and output
+* Added possibility to use relative URLs.
+* Added Custom Header Images for author pages.
+* Fixed installation problem with WP_DEBUG true (for new installations)
 
 = 1.1.0 =
 * Display Category Images by Default

@@ -4,7 +4,7 @@ Plugin Name: Custom Header Images
 Plugin URI: http://www.blackbam.at/blog/
 Description: A very simple and lightweight Plugin for managing custom header images for pages, posts, archive-pages, and all other possible.
 Author: David Stöckl
-Version: 1.1.1
+Version: 1.2.0
 Author URI: http://www.blackbam.at/blog/
  *
  * Note: This Plugins is GPLv2 licensed. This Plugin is released without any warranty. 
@@ -26,13 +26,33 @@ if(version_compare($wp_version,"3.0","<")) {
 register_activation_hook(__FILE__,"chi_activate");
 
 function chi_activate() {
-	$header_images = array(
-		'chi_width' =>960,
-		'chi_height' => 250
-	);
-	add_option('chi_data',$header_images);
-	
-	register_uninstall_hook(__FILE__,"chi_uninstall");
+    $header_images = array(
+        'chi_width' =>960,
+        'chi_height' => 250,
+        'chi_header_image_links' =>0,
+        'chi_display_nothing' => 0,
+        'chi_display_cat_image' => 0,
+        'chi_image_url_prefix' => "",
+        'chi_exclude_post_types' => array(),
+        'chi_exclude_taxonomies' => array(),
+        'chi_url_global_default' => "",
+        'chi_url_front' => "",
+        'chi_url_home' => "",
+        'chi_url_404' => "",
+        'chi_url_search' => "",
+        'chi_url_single_default' => "",
+        'chi_url_page_default' => "",
+        'chi_url_archive_default' => "",
+        'chi_url_date' => "",
+        'chi_url_author_default' => "",
+        'chi_url_category_default' => "",
+        'chi_url_tag_default' => "",
+        'chi_url_tax_default' => ""
+    );
+
+    add_option('chi_data',$header_images);
+
+    register_uninstall_hook(__FILE__,"chi_uninstall");
 }
 
 function chi_uninstall() {
@@ -63,7 +83,8 @@ function chi_options() {
 	add_options_page('Header Images','Header Images','manage_options',__FILE__,'chi_backend_page');
 }
 
-function chi_backend_page() { ?>
+function chi_backend_page() {
+    ?>
 		<div class="wrap">
 			<div><?php screen_icon('options-general'); ?></div>
 			<h2><?php _e('Settings: Header Images','custom-header-images'); ?></h2>
@@ -78,6 +99,7 @@ function chi_backend_page() { ?>
 				
 				$header_images['chi_display_nothing'] = intval($_POST['chi_display_nothing']);
 				$header_images['chi_display_cat_image'] = intval($_POST['chi_display_cat_image']);
+                                $header_images['chi_image_url_prefix'] = trim($_POST['chi_image_url_prefix']);
 				
 				// exclude post types
 				$exclude_post_types = array_map('trim',explode(",",$_POST["chi_exclude_post_types"]));
@@ -195,6 +217,11 @@ function chi_backend_page() { ?>
 							<th scope="row"><?php _e('Display category image in case of missing post / page / post-type image?','custom-header-images'); ?></th>
 							<td><input type="checkbox" name="chi_display_cat_image" value="1" <?php if($data['chi_display_cat_image']==1) {?>checked="checked"<?php }; ?> /></td>
 							<td class="description"><?php _e('If this option is on, the Plugin displays the category image (if existing), in case of missing specific image for post/page/post-type.','custom-header-images'); ?></td>
+						</tr>
+						<tr valign="top">
+							<th scope="row"><?php _e('Header Image URL Prefix','custom-header-images'); ?></th>
+							<td><input type="text" size="80" name="chi_image_url_prefix" value="<?php echo (isset($data['chi_image_url_prefix'])) ? $data['chi_image_url_prefix'] : ""; ?>" /></td>
+							<td class="description"><?php _e('Fill this out for using relative URLs. For example if all of your images are stored in http://www.example.com/wp-content/uploads/ you can provide this base. Note: You loose the ability to use image sources from outside the specified base!','custom-header-images'); ?></td>
 						</tr>
 						<tr valign="top">
 							<th scope="row"><?php _e('Exclude the following post types (by slug, comma seperated):','custom-header-images'); ?></th>
@@ -396,7 +423,7 @@ function chi_backend_page() { ?>
 		
 <?php } 
 
-/************** Post/Page/Post-Type Options *******/
+/*************************** Post/Page/Post-Type Options **************************/
 add_action('admin_init', 'chi_init');
 add_action('save_post', 'save_chi_post');
 
@@ -460,9 +487,9 @@ function save_chi_post(){
 	//}
 }
 
-/************** End Post/Page/Post-Type Options *******/
 
-/******** Category options ***********/
+
+/******************************** Category options ******************************************/
 ///////////// Category custom Thumbnail
 //add extra fields to category edit form hook
 add_action('init','chi_taxonomy_fields',101);
@@ -486,34 +513,34 @@ function chi_taxonomy_fields() {
 //add extra fields to taxonomy edit form callback function
 function extra_taxonomy_fields_edit( $tag ) {    //check for existing featured ID
     $t_id = $tag->term_id;
-	$tax = $tag->taxonomy;
+    $tax = $tag->taxonomy;
     $cat_meta = get_option( "chi_term_setting_1_".$tax."_$t_id");
-	$chi_data = get_option("chi_data");
-?>
-<tr class="form-field">
-	<th scope="row" valign="top"><label><?php _e('Taxonomy Image Url (The Image)','custom-header-images'); ?></label></th>
-	<td>
-		<input type="text" name="chi_term_setting_1_[img]" id="chi_term_setting_1_[img]" size="40" value="<?php echo $cat_meta['img'] ? $cat_meta['img'] : ''; ?>">
-		<p><span class="description"><?php _e('The Taxonomy Thumbnail URL - please use relative path like /wp-content/..path_to_image/image.jpg','custom-header-images'); ?></span></p>
-	</td>
-</tr>
-<?php if($chi_data['chi_header_image_links']==1) { ?>
-	<tr class="form-field">
-		<th scope="row" valign="top"><label><?php _e('Taxonomy Image Link (Link of the Image)','custom-header-images'); ?></label></th>
-		<td>
-			<input type="text" name="chi_term_setting_1_[link]" id="chi_term_setting_1_[link]" size="40" value="<?php echo $cat_meta['link'] ? $cat_meta['link'] : ''; ?>">
-			<p><span class="description"><?php _e('Use this, if you want to link the Taxonomy Image to some url e.g. http://myblog.org/taxonomy-overview/','custom-header-images'); ?></span></p>
-		</td>
-	</tr>
-<?php } ?>
-<tr class="form-field">
-	<th scope="row"><label><?php _e('Display no header image?','custom-header-images'); ?></th>
-	<td>
-		<input style="width:20px;" type="checkbox" size="50" name="chi_term_setting_1_[dpn]" value="1" <?php if($cat_meta['dpn']==1) {?>checked="checked"<?php } ?> /></p>
-		<p><span class="description"><?php _e('If this is checked, no header image will be displayed.','custom-header-images'); ?></span></p>
-	</td>
-</tr>
-<?php
+    $chi_data = get_option("chi_data");
+    ?>
+    <tr class="form-field">
+            <th scope="row" valign="top"><label><?php _e('Taxonomy Image Url (The Image)','custom-header-images'); ?></label></th>
+            <td>
+                    <input type="text" name="chi_term_setting_1_[img]" id="chi_term_setting_1_[img]" size="40" value="<?php echo $cat_meta['img'] ? $cat_meta['img'] : ''; ?>">
+                    <p><span class="description"><?php _e('The Taxonomy Thumbnail URL - please use relative path like /wp-content/..path_to_image/image.jpg','custom-header-images'); ?></span></p>
+            </td>
+    </tr>
+    <?php if($chi_data['chi_header_image_links']==1) { ?>
+            <tr class="form-field">
+                    <th scope="row" valign="top"><label><?php _e('Taxonomy Image Link (Link of the Image)','custom-header-images'); ?></label></th>
+                    <td>
+                            <input type="text" name="chi_term_setting_1_[link]" id="chi_term_setting_1_[link]" size="40" value="<?php echo $cat_meta['link'] ? $cat_meta['link'] : ''; ?>">
+                            <p><span class="description"><?php _e('Use this, if you want to link the Taxonomy Image to some url e.g. http://myblog.org/taxonomy-overview/','custom-header-images'); ?></span></p>
+                    </td>
+            </tr>
+    <?php } ?>
+    <tr class="form-field">
+            <th scope="row"><label><?php _e('Display no header image?','custom-header-images'); ?></th>
+            <td>
+                    <input style="width:20px;" type="checkbox" size="50" name="chi_term_setting_1_[dpn]" value="1" <?php if($cat_meta['dpn']==1) {?>checked="checked"<?php } ?> /></p>
+                    <p><span class="description"><?php _e('If this is checked, no header image will be displayed.','custom-header-images'); ?></span></p>
+            </td>
+    </tr>
+    <?php
 }
 
 // add extra fields to the taxonomy add function
@@ -570,6 +597,60 @@ function save_extra_taxonomy_fields( $term_id, $tt_id ) {
     }
 }
 
+/************************** Author options *****************************/
+add_action( 'show_user_profile', 'chi_user_profile_extra_fields' );
+add_action( 'edit_user_profile', 'chi_user_profile_extra_fields' );
+
+function chi_user_profile_extra_fields( $user ) { 
+    $chi_data = get_option('chi_data');
+    ?>
+
+	<h3><?php _e('Custom Header Images for Authors','custom-header-images'); ?></h3>
+        <p><?php _e('The images which are selected here, will be displayed on author archive pages.','custom-header-images'); ?></p>
+        
+	<table class="form-table">
+            <tr class="form-field">
+                    <th scope="row" valign="top"><label><?php _e('Author Image URL','custom-header-images'); ?></label></th>
+                    <td>
+                            <input type="text" name="chi_author_image_url" id="chi_author_image_url" size="40" value="<?php echo get_the_author_meta('chi_author_image_url',$user->ID); ?>" class="regular-text">
+                            <p><span class="description"><?php _e('The Author Header Image URL - please use relative path like /wp-content/..path_to_image/image.jpg','custom-header-images'); ?></span></p>
+                    </td>
+            </tr>
+            <?php if($chi_data['chi_header_image_links']==1) { ?>
+                    <tr class="form-field">
+                            <th scope="row" valign="top"><label><?php _e('Author Image Link','custom-header-images'); ?></label></th>
+                            <td>
+                                    <input type="text" name="chi_author_image_link" id="chi_author_image_link" size="40" value="<?php echo get_the_author_meta('chi_author_image_link',$user->ID); ?>" class="regular-text">
+                                    <p><span class="description"><?php _e('Use this, if you want to link the Author Image to some url e.g. http://myblog.org/author-overview/','custom-header-images'); ?></span></p>
+                            </td>
+                    </tr>
+            <?php } ?>
+            <tr class="form-field">
+                    <th scope="row"><label><?php _e('Display no header image?','custom-header-images'); ?></th>
+                    <td>
+                            <input style="width:20px;" type="checkbox" size="50" name="chi_author_nodisplay" value="1" <?php if(get_the_author_meta('chi_author_nodisplay',$user->ID)==1) {?>checked="checked"<?php } ?> /></p>
+                            <p><span class="description"><?php _e('If this is checked, no header image on the authors page will be displayed.','custom-header-images'); ?></span></p>
+                    </td>
+            </tr>
+	</table>
+<?php
+}
+
+
+add_action( 'personal_options_update', 'chi_save_profile_extra_fields' );
+add_action( 'edit_user_profile_update', 'chi_save_profile_extra_fields' );
+
+function chi_save_profile_extra_fields( $user_id ) {
+
+	if ( !current_user_can( 'edit_user', $user_id ) )
+		return false;
+
+	/* Copy and paste this line for additional fields. Make sure to change 'twitter' to the field ID. */
+	update_user_meta( $user_id, 'chi_author_image_url', trim($_POST['chi_author_image_url']) );
+        update_user_meta( $user_id, 'chi_author_image_link', trim($_POST['chi_author_image_link']) );
+        update_user_meta( $user_id, 'chi_author_nodisplay', intval($_POST['chi_author_nodisplay']) );
+}
+
 
 
 /************** Display functions **********/
@@ -584,156 +665,208 @@ function chi_css() {?>
 	</style>
 <?php }
 
-function chi_display_header($width=-1,$height=-1) {
-	$chi_data = get_option('chi_data');
-	
-	$header_image_url = "";
-	$header_image_link = "";
-	$display_nothing = false;
-	$final = false;
-	
-	if($width==-1) {
-		$width = $chi_data['chi_width'];
-	}
-	
-	if($height==-1) {
-		$height = $chi_data['chi_height'];
-	}
-	
-	if(is_front_page()) {
-		$header_image_url = $chi_data['chi_url_front'];
-		$header_image_link = $chi_data['chi_url_front_link'];
-	} else if(is_home()) {
-		$header_image_url = $chi_data['chi_url_home'];
-		$header_image_link = $chi_data['chi_url_home_link'];
-	} else if(is_404()) {
-		$header_image_url = $chi_data['chi_url_404'];
-		$header_image_link = $chi_data['chi_url_404_link'];
-	} else if(is_search()) {
-		$header_image_url = $chi_data['chi_url_search'];
-		$header_image_link = $chi_data['chi_url_search_link'];
-	} else if(is_archive()) {
-		
-		if(is_category()) {
-			$cat_image_settings = get_option('chi_term_setting_1_category_'.get_query_var('cat'));
-			if($cat_image_settings["dpn"]==1) {
-				$display_nothing = true;
-			} else {
-				$header_image_url = $cat_image_settings["img"];
-				$header_image_link = $cat_image_settings["link"];
-			}
-			if($header_image_url=="") {
-				$header_image_url = $chi_data["chi_url_category_default"];
-				$header_image_link = $chi_data['chi_url_category_default_link'];
-			}
-			
-		} else if(is_tag()) {
-			$cat_image_settings = get_option('chi_term_setting_1_post_tag_'.get_query_var('tag_id'));
-			if($cat_image_settings["dpn"]==1) {
-				$display_nothing = true;
-			} else {
-				$header_image_url = $cat_image_settings["img"];
-				$header_image_link = $cat_image_settings["link"];
-			}
-			if($header_image_url=="") {
-				$header_image_url = $chi_data["chi_url_tag_default"];
-				$header_image_link = $chi_data['chi_url_tag_default_link'];
-			}
-		} else if(is_date()) {
-			$header_image_url= $chi_data["chi_url_date"];
-			$header_image_link = $chi_data['chi_url_date_link'];
-		} else if(is_author()) {
-			$header_image_url = $chi_data["chi_url_author_default"];
-			$header_image_link = $chi_data['chi_url_author_default_link'];
-		} else if(is_tag()) {
-			$header_image_url = $chi_data["chi_url_tag_default"];
-			$header_image_link = $chi_data['chi_url_tag_default_link'];
-		} else if(is_tax()) {
-			$taxonomy = get_query_var('taxonomy');
-			$term = get_query_var($taxonomy);
-			$term_info = get_term_by('slug',$term,$taxonomy);
-			
-			$cat_image_settings = get_option('chi_term_setting_1_'.get_query_var('taxonomy').'_'.$term_info->term_id);
-			
-			if($cat_image_settings["dpn"]==1) {
-				$display_nothing = true;
-			} else {
-				$header_image_url = $cat_image_settings["img"];
-				$header_image_link = $cat_image_settings["link"];
-			}
-			if($header_image_url=="") {
-				$header_image_url = $chi_data["chi_url_tax_default"];
-				$header_image_link = $chi_data['chi_url_tax_default_link'];
-			}
-		}
-		if($header_image_url=="") {
-			$header_image_url = $chi_data['chi_url_archive_default'];
-			$header_image_link = $chi_data['chi_url_archive_default_link'];
-		}
-	} else if(is_single() || is_page()) {
-		global $post;
-		$single_image_url=get_post_meta($post->ID,"chi_post_setting_1",true);
-		$single_image_link = get_post_meta($post->ID,"chi_post_setting_3",true);
-		
-		if(get_post_meta($post->ID,"chi_post_setting_2",true)==1) {
-			$display_nothing = true;
-		}
-		
-		if($single_image_url!="") {
-			
-			$header_image_url = $single_image_url;
-			$header_image_link =  $single_image_link;
-		} else {
-			$category_image_url="";
-			if($chi_data['chi_display_cat_image']==1) {
-				$categories = get_the_category($post->ID);
-				if(!empty($categories)) {
-					$first_cat_id = $categories[0]->term_id;
-					$category_image_url_op = get_option('chi_term_setting_1_category_'.$first_cat_id);
-					$category_image_url = $category_image_url_op['img'];
-					$category_image_link_op = get_option('chi_term_setting_1_category_'.$first_cat_id);
-					$category_image_link = $category_image_link_op['link'];
-				}
-			}
-			
-			if($category_image_url!="") {
-				$header_image_url = $category_image_url;
-				$header_image_link = $category_image_link;
-			} else {
-				if(is_single()) {
-					$header_image_url = $chi_data['chi_url_single_default'];
-					$header_image_link = $chi_data['chi_url_single_default_link'];
-				} else if(is_page()) {
-					$header_image_url = $chi_data['chi_url_page_default'];
-					$header_image_link = $chi_data['chi_url_page_default_link'];
-				}
-			}
-		}
-	}
+/**
+ * Retrieve an array containing the header image url / header image link in the current query context.
+ */
+function chi_get_context() {
+    
+    $chi_data = get_option('chi_data');
 
-	if($header_image_url=="" && $chi_data['chi_display_nothing']!=1) {
-		$header_image_url=$chi_data['chi_url_global_default'];
-		$header_image_link=$chi_data['chi_url_global_default_link'];
-	}
-	
-	if($display_nothing===true) {
-		$header_image_url="";
-	}
-	
-	if($header_image_url!="") {
-		$custom_output = get_option('chi_custom_output');
-		
-		if(trim($custom_output)=="") {
-			?>
-			<div class="chi_display_header" data-link="<?php echo $header_image_link; ?>" style="<?php if($linkme!="") { echo "cursor:pointer;"; } ?>height:<?php echo $height;?>px; width:<?php echo $width;?>px; background-image:url('<?php echo $header_image_url; ?>');"></div>
-			<?php
-		} else {
-			echo str_replace(
-				array('[image_url]','[link]','[width]','[height]'),
-				array($header_image_url,$header_image_link,$width,$height),
-				$custom_output
-			);
-		}
-	}
+    $header_image_url = "";
+    $header_image_link = "";
+    $display_nothing = false;
+
+    if(is_front_page()) {
+            $header_image_url = $chi_data['chi_url_front'];
+            $header_image_link = $chi_data['chi_url_front_link'];
+    } else if(is_home()) {
+            $header_image_url = $chi_data['chi_url_home'];
+            $header_image_link = $chi_data['chi_url_home_link'];
+    } else if(is_404()) {
+            $header_image_url = $chi_data['chi_url_404'];
+            $header_image_link = $chi_data['chi_url_404_link'];
+    } else if(is_search()) {
+            $header_image_url = $chi_data['chi_url_search'];
+            $header_image_link = $chi_data['chi_url_search_link'];
+    } else if(is_archive()) {
+
+            if(is_category()) {
+                    $cat_image_settings = get_option('chi_term_setting_1_category_'.get_query_var('cat'));
+                    if($cat_image_settings["dpn"]==1) {
+                            $display_nothing = true;
+                    } else {
+                            $header_image_url = $cat_image_settings["img"];
+                            $header_image_link = $cat_image_settings["link"];
+                    }
+                    if($header_image_url=="") {
+                            $header_image_url = $chi_data["chi_url_category_default"];
+                            $header_image_link = $chi_data['chi_url_category_default_link'];
+                    }
+
+            } else if(is_tag()) {
+                    $cat_image_settings = get_option('chi_term_setting_1_post_tag_'.get_query_var('tag_id'));
+                    if($cat_image_settings["dpn"]==1) {
+                            $display_nothing = true;
+                    } else {
+                            $header_image_url = $cat_image_settings["img"];
+                            $header_image_link = $cat_image_settings["link"];
+                    }
+                    if($header_image_url=="") {
+                            $header_image_url = $chi_data["chi_url_tag_default"];
+                            $header_image_link = $chi_data['chi_url_tag_default_link'];
+                    }
+            } else if(is_date()) {
+                    $header_image_url= $chi_data["chi_url_date"];
+                    $header_image_link = $chi_data['chi_url_date_link'];
+            } else if(is_author()) {
+                    $author = get_query_var("author");
+                    
+                    $author_image_url = get_user_meta($author, 'chi_author_image_url',true);
+                    $author_image_link = get_user_meta($author, 'chi_author_image_link',true);
+                    $author_image_nodisplay = get_user_meta($author, 'chi_author_nodisplay',true);
+                    
+                    if(intval($author_image_nodisplay)>0) {
+                        $display_nothing = true;
+                    } else {
+                        $header_image_url = $author_image_url;
+                        $header_image_link = $author_image_link;
+                    }
+                    if($header_image_url=="") {
+                        $header_image_url = $chi_data["chi_url_author_default"];
+                        $header_image_link = $chi_data['chi_url_author_default_link'];
+                    }
+            } else if(is_tag()) {
+                    $header_image_url = $chi_data["chi_url_tag_default"];
+                    $header_image_link = $chi_data['chi_url_tag_default_link'];
+            } else if(is_tax()) {
+                    $taxonomy = get_query_var('taxonomy');
+                    $term = get_query_var($taxonomy);
+                    $term_info = get_term_by('slug',$term,$taxonomy);
+
+                    $cat_image_settings = get_option('chi_term_setting_1_'.get_query_var('taxonomy').'_'.$term_info->term_id);
+
+                    if($cat_image_settings["dpn"]==1) {
+                            $display_nothing = true;
+                    } else {
+                            $header_image_url = $cat_image_settings["img"];
+                            $header_image_link = $cat_image_settings["link"];
+                    }
+                    if($header_image_url=="") {
+                            $header_image_url = $chi_data["chi_url_tax_default"];
+                            $header_image_link = $chi_data['chi_url_tax_default_link'];
+                    }
+            }
+            if($header_image_url=="") {
+                    $header_image_url = $chi_data['chi_url_archive_default'];
+                    $header_image_link = $chi_data['chi_url_archive_default_link'];
+            }
+    } else if(is_single() || is_page()) {
+            global $post;
+            $single_image_url=get_post_meta($post->ID,"chi_post_setting_1",true);
+            $single_image_link = get_post_meta($post->ID,"chi_post_setting_3",true);
+
+            if(get_post_meta($post->ID,"chi_post_setting_2",true)==1) {
+                    $display_nothing = true;
+            }
+
+            if($single_image_url!="") {
+
+                    $header_image_url = $single_image_url;
+                    $header_image_link =  $single_image_link;
+            } else {
+                    $category_image_url="";
+                    if($chi_data['chi_display_cat_image']==1) {
+                            $categories = get_the_category($post->ID);
+                            if(!empty($categories)) {
+                                    $first_cat_id = $categories[0]->term_id;
+                                    $category_image_url_op = get_option('chi_term_setting_1_category_'.$first_cat_id);
+                                    $category_image_url = $category_image_url_op['img'];
+                                    $category_image_link_op = get_option('chi_term_setting_1_category_'.$first_cat_id);
+                                    $category_image_link = $category_image_link_op['link'];
+                            }
+                    }
+
+                    if($category_image_url!="") {
+                            $header_image_url = $category_image_url;
+                            $header_image_link = $category_image_link;
+                    } else {
+                            if(is_single()) {
+                                    $header_image_url = $chi_data['chi_url_single_default'];
+                                    $header_image_link = $chi_data['chi_url_single_default_link'];
+                            } else if(is_page()) {
+                                    $header_image_url = $chi_data['chi_url_page_default'];
+                                    $header_image_link = $chi_data['chi_url_page_default_link'];
+                            }
+                    }
+            }
+    }
+
+    if($header_image_url=="" && $chi_data['chi_display_nothing']!=1) {
+            $header_image_url=$chi_data['chi_url_global_default'];
+            $header_image_link=$chi_data['chi_url_global_default_link'];
+    }
+
+    if($display_nothing===true) {
+            $header_image_url="";
+    }
+    
+    $condat = array();
+    $condat['url'] = $chi_data['chi_image_url_prefix'].$header_image_url;
+    $condat['link'] = $header_image_link;
+    return $condat;
 }
-?>
+
+/**
+ * @return string: The header image URL of the current context.
+ */
+function chi_get_header_image_url() {
+    $condat = chi_get_context();
+    return $condat['url'];
+}
+
+/**
+ * 
+ * @return string: The header image link of the current context.
+ */
+function chi_get_header_image_link() {
+    $condat = chi_get_context();
+    return $condat['link'];
+}
+
+function chi_get_display_header_data($width=-1,$height=-1) {
+    $chi_data = get_option("chi_data");
+    
+    $condat = chi_get_context();
+    $header_image_url = $condat["url"];
+    $header_image_link = $condat['link'];
+    
+
+    if($width==-1) {
+            $width = $chi_data['chi_width'];
+    }
+
+    if($height==-1) {
+            $height = $chi_data['chi_height'];
+    }
+
+
+    if($header_image_url!="") {
+            $custom_output = get_option('chi_custom_output');
+
+            if(trim($custom_output)=="") {
+                $cpoin = ($header_image_link!="") ? "cursor:pointer;" : "";
+                return '<div class="chi_display_header" data-link="'.$header_image_link.'" style="'.$cpoin.'height:'.$height.'px; width:'.$width.'px; background-image:url(\''.$header_image_url.'\');"></div>';
+            } else {
+                    return str_replace(
+                            array('[image_url]','[link]','[width]','[height]'),
+                            array($header_image_url,$header_image_link,$width,$height),
+                            $custom_output
+                    );
+            }
+    }
+    
+}
+
+function chi_display_header($width=-1,$height=-1) {
+	echo chi_get_display_header_data($width, $height);
+}
