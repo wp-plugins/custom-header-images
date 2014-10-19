@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: header, images, simple
 Requires at least: 3.0
 Tested up to: 3.5
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -31,6 +31,12 @@ Features:
 * NEW (1.2.0): Added possibility to use relative URLs.
 * NEW (1.2.0): Added Custom Header Images for author pages.
 * Clean install/uninstall
+
+Languages:
+en_US (default)
+de_DE: German
+sr_RS: Serbian (translation by webhostinghub.com)
+
 
 Please report any bugs you may encounter.
 
@@ -63,6 +69,9 @@ Note: This Plugin uses conditional tags. You can only use conditional query tags
 2. /assets/screenshot-2.png
 
 == Changelog ==
+
+= 1.2.1 =
+* Added language sr_RS (translation by webhostinghub.com)
 
 = 1.2.0 =
 * Added API to retrieve plain URL/Link and output
